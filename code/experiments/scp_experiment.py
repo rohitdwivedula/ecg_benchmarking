@@ -37,54 +37,64 @@ class SCP_Experiment():
     def prepare(self):
         # Load PTB-XL data
         self.data, self.raw_labels = utils.load_dataset(self.datafolder, self.sampling_frequency)
-
+        print("[PREPARE] PTBXL Loaded.")
+        
         # Preprocess label data
         self.labels = utils.compute_label_aggregations(self.raw_labels, self.datafolder, self.task)
+        print("[PREPARE] Label data preprocessed.")
 
         # Select relevant data and convert to one-hot
         self.data, self.labels, self.Y, _ = utils.select_data(self.data, self.labels, self.task, self.min_samples, self.outputfolder+self.experiment_name+'/data/')
         self.input_shape = self.data[0].shape
-        
+        print("[PREPARE] Data Selected")
+
         # 10th fold for testing (9th for now)
         self.X_test = self.data[self.labels.strat_fold == self.test_fold]
         self.y_test = self.Y[self.labels.strat_fold == self.test_fold]
+        print("[PREPARE] Test set created")
+
         # 9th fold for validation (8th for now)
         self.X_val = self.data[self.labels.strat_fold == self.val_fold]
         self.y_val = self.Y[self.labels.strat_fold == self.val_fold]
+        print("[PREPARE] Val set created")
+
         # rest for training
         self.X_train = self.data[self.labels.strat_fold <= self.train_fold]
         self.y_train = self.Y[self.labels.strat_fold <= self.train_fold]
+        print("[PREPARE] Train set created")
 
+        print("Data read successfully done")
         # Preprocess signal data
         self.X_train, self.X_val, self.X_test = utils.preprocess_signals(self.X_train, self.X_val, self.X_test, self.outputfolder+self.experiment_name+'/data/')
         self.n_classes = self.y_train.shape[1]
+
+        print("Data preprocessing done")
 
         # save train and test labels
         self.y_train.dump(self.outputfolder + self.experiment_name+ '/data/y_train.npy')
         self.y_val.dump(self.outputfolder + self.experiment_name+ '/data/y_val.npy')
         self.y_test.dump(self.outputfolder + self.experiment_name+ '/data/y_test.npy')
 
-        modelname = 'naive'
-        # create most naive predictions via simple mean in training
-        mpath = self.outputfolder+self.experiment_name+'/models/'+modelname+'/'
-        # create folder for model outputs
-        if not os.path.exists(mpath):
-            os.makedirs(mpath)
-        if not os.path.exists(mpath+'results/'):
-            os.makedirs(mpath+'results/')
+        # modelname = 'naive'
+        # # create most naive predictions via simple mean in training
+        # mpath = self.outputfolder+self.experiment_name+'/models/'+modelname+'/'
+        # # create folder for model outputs
+        # if not os.path.exists(mpath):
+        #     os.makedirs(mpath)
+        # if not os.path.exists(mpath+'results/'):
+        #     os.makedirs(mpath+'results/')
 
-        mean_y = np.mean(self.y_train, axis=0)
-        np.array([mean_y]*len(self.y_train)).dump(mpath + 'y_train_pred.npy')
-        np.array([mean_y]*len(self.y_test)).dump(mpath + 'y_test_pred.npy')
-        np.array([mean_y]*len(self.y_val)).dump(mpath + 'y_val_pred.npy')
+        # mean_y = np.mean(self.y_train, axis=0)
+        # np.array([mean_y]*len(self.y_train)).dump(mpath + 'y_train_pred.npy')
+        # np.array([mean_y]*len(self.y_test)).dump(mpath + 'y_test_pred.npy')
+        # np.array([mean_y]*len(self.y_val)).dump(mpath + 'y_val_pred.npy')
 
     def perform(self):
-
         for model_description in self.models:
             modelname = model_description['modelname']
             modeltype = model_description['modeltype']
             modelparams = model_description['parameters']
-
+            print(model_description)
             mpath = self.outputfolder+self.experiment_name+'/models/'+modelname+'/'
             # create folder for model outputs
             if not os.path.exists(mpath):
@@ -100,10 +110,10 @@ class SCP_Experiment():
             elif modeltype == "fastai_model":
                 from models.fastai_model import fastai_model
                 model = fastai_model(modelname, n_classes, self.sampling_frequency, mpath, self.input_shape, **modelparams)
-            elif modeltype == "YOUR_MODEL_TYPE":
+            elif modeltype == "attention":
                 # YOUR MODEL GOES HERE!
-                from models.your_model import YourModel
-                model = YourModel(modelname, n_classes, self.sampling_frequency, mpath, self.input_shape, **modelparams)
+                from models.attention import AttentionModel
+                model = AttentionModel(modelname, n_classes, self.sampling_frequency, mpath, self.input_shape, **modelparams)
             else:
                 assert(True)
                 break

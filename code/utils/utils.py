@@ -85,7 +85,7 @@ def find_optimal_cutoff_threshold(target, predicted):
     return optimal_threshold
 
 def find_optimal_cutoff_thresholds(y_true, y_pred):
-	return [find_optimal_cutoff_threshold(y_true[:,i], y_pred[:,i]) for i in range(y_true.shape[1])]
+    return [find_optimal_cutoff_threshold(y_true[:,i], y_pred[:,i]) for i in range(y_true.shape[1])]
 
 def find_optimal_cutoff_threshold_for_Gbeta(target, predicted, n_thresholds=100):
     thresholds = np.linspace(0.00,1,n_thresholds)
@@ -98,24 +98,25 @@ def find_optimal_cutoff_thresholds_for_Gbeta(y_true, y_pred):
     return [find_optimal_cutoff_threshold_for_Gbeta(y_true[:,k][:,np.newaxis], y_pred[:,k][:,np.newaxis]) for k in tqdm(range(y_true.shape[1]))]
 
 def apply_thresholds(preds, thresholds):
-	"""
-		apply class-wise thresholds to prediction score in order to get binary format.
-		BUT: if no score is above threshold, pick maximum. This is needed due to metric issues.
-	"""
-	tmp = []
-	for p in preds:
-		tmp_p = (p > thresholds).astype(int)
-		if np.sum(tmp_p) == 0:
-			tmp_p[np.argmax(p)] = 1
-		tmp.append(tmp_p)
-	tmp = np.array(tmp)
-	return tmp
+    """
+        apply class-wise thresholds to prediction score in order to get binary format.
+        BUT: if no score is above threshold, pick maximum. This is needed due to metric issues.
+    """
+    tmp = []
+    for p in preds:
+        tmp_p = (p > thresholds).astype(int)
+        if np.sum(tmp_p) == 0:
+            tmp_p[np.argmax(p)] = 1
+        tmp.append(tmp_p)
+    tmp = np.array(tmp)
+    return tmp
 
 # DATA PROCESSING STUFF
 
 def load_dataset(path, sampling_rate, release=False):
     if path.split('/')[-2] == 'ptbxl':
         # load and convert annotation data
+        print("[PREPARE/utils] Loading PTBXL...")
         Y = pd.read_csv(path+'ptbxl_database.csv', index_col='ecg_id')
         Y.scp_codes = Y.scp_codes.apply(lambda x: ast.literal_eval(x))
 
@@ -151,12 +152,21 @@ def load_raw_data_icbeb(df, sampling_rate, path):
 
 def load_raw_data_ptbxl(df, sampling_rate, path):
     if sampling_rate == 100:
-        if os.path.exists(path + 'raw100.npy'):
-            data = np.load(path+'raw100.npy', allow_pickle=True)
-        else:
+        print("Loading data with sampling rate", sampling_rate)
+        flag = False
+        try:
+            if os.path.exists(path + 'raw100.npy'):
+                data = np.load(path+'raw100.npy', allow_pickle=True)
+                flag = True
+        except OSError:
+            flag = False # data read was unsuccessful
+
+        if not flag:
             data = [wfdb.rdsamp(path+f) for f in tqdm(df.filename_lr)]
             data = np.array([signal for signal, meta in data])
-            data.dump(path+'raw100.npy')
+            print("[PREPARE/utils] Raw data reading done...")
+            # data.dump(path+'raw100.npy')
+            # print("[PREPARE/utils] Data dump complete")
     elif sampling_rate == 500:
         if os.path.exists(path + 'raw500.npy'):
             data = np.load(path+'raw500.npy', allow_pickle=True)
