@@ -7,7 +7,7 @@ from configs.attention_configs import *
 def main(is_production_env):
     if is_production_env:
     	# running on Kaggle
-    	datafolder = '/kaggle/input/ptbxl-electrocardiography-database/'
+    	datafolder = '/kaggle/input/ptbxl-original-dataset/ptb-xl-a-large-publicly-available-electrocardiography-dataset-1.0.1/'
     	outputfolder = '/kaggle/working/'
     else:
 	    datafolder = '../data/ptbxl/'

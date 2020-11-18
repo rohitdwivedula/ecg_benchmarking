@@ -12,4 +12,5 @@ __pycache__
 **/*.fls
 **/*.fdb_latexmk
 data/
+output/
 .ipynb_checkpoints
