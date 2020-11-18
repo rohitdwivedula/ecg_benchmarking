@@ -114,7 +114,7 @@ def apply_thresholds(preds, thresholds):
 # DATA PROCESSING STUFF
 
 def load_dataset(path, sampling_rate, release=False):
-    if path.split('/')[-2] == 'ptbxl':
+    if 'ptbxl' in path:
         # load and convert annotation data
         print("[PREPARE/utils] Loading PTBXL...")
         Y = pd.read_csv(path+'ptbxl_database.csv', index_col='ecg_id')
@@ -130,7 +130,6 @@ def load_dataset(path, sampling_rate, release=False):
 
         # Load raw signal data
         X = load_raw_data_icbeb(Y, sampling_rate, path)
-
     return X, Y
 
 def load_raw_data_icbeb(df, sampling_rate, path):
