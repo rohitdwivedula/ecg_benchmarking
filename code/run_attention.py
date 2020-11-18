@@ -1,12 +1,18 @@
+import argparse
 from experiments.scp_experiment import SCP_Experiment
 from utils import utils
 # model configs
 from configs.attention_configs import *
 
-def main():
-    datafolder = '../data/ptbxl/'
-    # datafolder_icbeb = '../data/ICBEB/'
-    outputfolder = '../output/'
+def main(is_production_env):
+    if is_production_env:
+    	# running on Kaggle
+    	datafolder = '/kaggle/input/ptbxl-electrocardiography-database/'
+    	outputfolder = '/kaggle/working/'
+    else:
+	    datafolder = '../data/ptbxl/'
+	    # datafolder_icbeb = '../data/ICBEB/'
+	    outputfolder = '../output/'
 
     models = [
         # conf_attention_cnn,
@@ -20,11 +26,11 @@ def main():
     
     experiments = [
         ('exp0', 'all')
-        ('exp1', 'diagnostic'),
-        ('exp1.1', 'subdiagnostic'),
-        ('exp1.1.1', 'superdiagnostic'),
-        ('exp2', 'form'),
-        ('exp3', 'rhythm')
+        # ('exp1', 'diagnostic'),
+        # ('exp1.1', 'subdiagnostic'),
+        # ('exp1.1.1', 'superdiagnostic'),
+        # ('exp2', 'form'),
+        # ('exp3', 'rhythm')
        ]
     for name, task in experiments:
         e = SCP_Experiment(name, task, datafolder, outputfolder, models)
@@ -51,4 +57,7 @@ def main():
     # utils.ICBEBE_table()
 
 if __name__ == "__main__":
-    main()
+	parser = argparse.ArgumentParser(description='Run attention-neural network models on PTBXL dataset.')
+	parser.add_argument('--production', action='store_true')
+	args = parser.parse_args()
+	main(args.production)
