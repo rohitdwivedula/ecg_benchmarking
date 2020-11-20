@@ -1,3 +1,4 @@
+import numpy as np
 import tensorflow as tf
 from keras.models import Model
 from keras.layers import Attention, Dense, Dropout, LSTM, Input, Conv1D, Bidirectional, GRU, Flatten
@@ -23,8 +24,8 @@ class AttentionModel(ClassificationModel):
     def fit(self, X_train, y_train, X_val, y_val):
         if (self.name.startswith("attention_bilstm")):
             inp = Input(shape=(1000,12)) # REVERSE THIS
-            x = LSTM(64, activation = 'tanh', return_sequences = True)(inp)
-            x = SeqSelfAttention(attention_activation='tanh')(x)
+            x = LSTM(128, activation = 'tanh', return_sequences = True)(inp)
+            # x = SeqSelfAttention(attention_activation='tanh')(x)
             out = Dense(71, activation='softmax')(x)
             model = Model(inp, out)
             model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
@@ -33,6 +34,9 @@ class AttentionModel(ClassificationModel):
         elif (self.name.startswith("attention_cnn")):
             pass
         y_train = np.expand_dims(y_train, axis=-1)
+        print("[MODEL] Array Sizes")
+        print("[MODEL] X_train", X_train.shape)
+        print("[MODEL] y_train", y_train.shape)
         history = model.fit(X_train, y_train, batch_size = 64, epochs = 100, validation_data = (X_val, y_val), shuffle = True)
         self.model = model
         np.save(self.outputfolder + "training_history.npy", history.history)
