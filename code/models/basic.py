@@ -12,6 +12,30 @@ sess = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(gpu_options=gpu_opti
 
 from models.base_model import ClassificationModel
 
+def stacked_lstm(units=[128, 128], lstm_activation = 'tanh', num_output_classes = 71, add_dense = False):
+    inp = Input(shape=(12, 1000))
+    
+    if len(units) == 1:
+        x = LSTM(units[0], activation = lstm_activation)
+    else:
+        x = LSTM(units[0], activation = lstm_activation, return_sequences = True)
+
+    for i in range(1, len(units)):
+        if i != len(units) - 1:
+            x = LSTM(units[i], activation = lstm_activation, return_sequences = True)(inp)
+        else:
+            x = LSTM(units[i], activation = lstm_activation)(inp)
+
+    if units[-1] > 128 and add_dense:
+        x = Dense(128, activation='relu')(x)
+
+    if add_dense and num_output_classes < 64:
+        x = Dense(64, activation='relu')(x)
+
+    out = Dense(num_output_classes, activation='softmax')(x)
+    model = Model(inp, out)
+    return model
+
 class BasicModel(ClassificationModel):
     def __init__(self, name, n_classes,  sampling_frequency, outputfolder, input_shape):
         self.name = name
@@ -26,20 +50,30 @@ class BasicModel(ClassificationModel):
         X_val = np.transpose(X_val, axes=[0, 2, 1])
         num_output_classes = y_train.shape[1]
         
-        if (self.name.startswith("lstm")):
-            inp = Input(shape=(12, 1000))
-            x = LSTM(64, activation = 'tanh')(inp)
-            out = Dense(num_output_classes, activation='softmax')(x)
-            model = Model(inp, out)
-            model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+        if (self.name.startswith("stacked_lstm_256_256")):
+            model = stacked_lstm(units = [256, 256], num_output_classes = num_output_classes, add_dense = True)
+        
+        elif (self.name.startswith("stacked_lstm_128_128")):
+            model = stacked_lstm(units = [128, 128], num_output_classes = num_output_classes, add_dense = True)
+        
+        elif (self.name.startswith("stacked_lstm_64_64")):
+            model = stacked_lstm(units = [64, 64], num_output_classes = num_output_classes, add_dense = False)
+        
+        elif (self.name.startswith("stacked_lstm_256_128")):
+            model = stacked_lstm(units = [256, 128], num_output_classes = num_output_classes, add_dense = True)
+        
+        elif (self.name.startswith("stacked_lstm_128_64")):
+            model = stacked_lstm(units = [128, 64], num_output_classes = num_output_classes, add_dense = False)
         else:
-            pass
+        	print("Model", self.name, "not found")
+        	exit(0)
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
         print("[MODEL] Array Sizes")
         print("[MODEL] X_train", X_train.shape)
         print("[MODEL] y_train", y_train.shape)
         print("[MODEL] X_train", X_val.shape)
         print("[MODEL] y_train", y_val.shape)
-        history = model.fit(X_train, y_train, batch_size = 256, epochs = 1, validation_data = (X_val, y_val), shuffle = True)
+        history = model.fit(X_train, y_train, batch_size = 256, epochs = 100, validation_data = (X_val, y_val), shuffle = True)
         self.model = model
         np.save(self.outputfolder + "training_history.npy", history.history)
         K.clear_session()
