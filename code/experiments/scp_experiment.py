@@ -75,20 +75,6 @@ class SCP_Experiment():
         self.y_val.dump(self.outputfolder + self.experiment_name+ '/data/y_val.npy')
         self.y_test.dump(self.outputfolder + self.experiment_name+ '/data/y_test.npy')
 
-        # modelname = 'naive'
-        # # create most naive predictions via simple mean in training
-        # mpath = self.outputfolder+self.experiment_name+'/models/'+modelname+'/'
-        # # create folder for model outputs
-        # if not os.path.exists(mpath):
-        #     os.makedirs(mpath)
-        # if not os.path.exists(mpath+'results/'):
-        #     os.makedirs(mpath+'results/')
-
-        # mean_y = np.mean(self.y_train, axis=0)
-        # np.array([mean_y]*len(self.y_train)).dump(mpath + 'y_train_pred.npy')
-        # np.array([mean_y]*len(self.y_test)).dump(mpath + 'y_test_pred.npy')
-        # np.array([mean_y]*len(self.y_val)).dump(mpath + 'y_val_pred.npy')
-
     def perform(self):
         for model_description in self.models:
             modelname = model_description['modelname']
@@ -190,17 +176,6 @@ class SCP_Experiment():
 
             pool = multiprocessing.Pool(n_jobs)
 
-            # tr_df = pd.concat(pool.starmap(utils.generate_results, zip(train_samples, repeat(y_train), repeat(y_train_pred), repeat(thresholds))))
-            # tr_df_point = utils.generate_results(range(len(y_train)), y_train, y_train_pred, thresholds)
-            # tr_df_result = pd.DataFrame(
-            #     np.array([
-            #         tr_df_point.mean().values, 
-            #         tr_df.mean().values,
-            #         tr_df.quantile(0.05).values,
-            #         tr_df.quantile(0.95).values]), 
-            #     columns=tr_df.columns,
-            #     index=['point', 'mean', 'lower', 'upper'])
-
             te_df = pd.concat(pool.starmap(utils.generate_results, zip(test_samples, repeat(y_test), repeat(y_test_pred), repeat(thresholds))))
             te_df_point = utils.generate_results(range(len(y_test)), y_test, y_test_pred, thresholds)
             te_df_result = pd.DataFrame(
@@ -212,20 +187,5 @@ class SCP_Experiment():
                 columns=te_df.columns, 
                 index=['point', 'mean', 'lower', 'upper'])
 
-            # val_df = pd.concat(pool.starmap(utils.generate_results, zip(val_samples, repeat(y_val), repeat(y_val_pred), repeat(thresholds))))
-            # val_df_point = utils.generate_results(range(len(y_val)), y_val, y_val_pred, thresholds)
-            # val_df_result = pd.DataFrame(
-            #     np.array([
-            #         val_df_point.mean().values, 
-            #         val_df.mean().values,
-            #         val_df.quantile(0.05).values,
-            #         val_df.quantile(0.95).values]), 
-            #     columns=val_df.columns, 
-            #     index=['point', 'mean', 'lower', 'upper'])
-
             pool.close()
-
-            # dump results
-            #tr_df_result.to_csv(rpath+'tr_results.csv')
-            #val_df_result.to_csv(rpath+'val_results.csv')
             te_df_result.to_csv(rpath+'te_results.csv')
