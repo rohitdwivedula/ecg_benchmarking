@@ -110,10 +110,10 @@ class SCP_Experiment():
             elif modeltype == "fastai_model":
                 from models.fastai_model import fastai_model
                 model = fastai_model(modelname, n_classes, self.sampling_frequency, mpath, self.input_shape, **modelparams)
-            elif modeltype == "attention":
+            elif modeltype == "basic":
                 # YOUR MODEL GOES HERE!
-                from models.attention import AttentionModel
-                model = AttentionModel(modelname, n_classes, self.sampling_frequency, mpath, self.input_shape, **modelparams)
+                from models.basic import BasicModel
+                model = BasicModel(modelname, n_classes, self.sampling_frequency, mpath, self.input_shape, **modelparams)
             else:
                 assert(True)
                 break
@@ -138,9 +138,9 @@ class SCP_Experiment():
         for model_description in os.listdir(self.outputfolder+self.experiment_name+'/models/'):
             if not model_description in ['ensemble', 'naive']:
                 mpath = self.outputfolder+self.experiment_name+'/models/'+model_description+'/'
-                ensemble_train.append(np.load(mpath+'y_train_pred.npy'))
-                ensemble_val.append(np.load(mpath+'y_val_pred.npy'))
-                ensemble_test.append(np.load(mpath+'y_test_pred.npy'))
+                ensemble_train.append(np.load(mpath+'y_train_pred.npy', allow_pickle=True))
+                ensemble_val.append(np.load(mpath+'y_val_pred.npy', allow_pickle=True))
+                ensemble_test.append(np.load(mpath+'y_test_pred.npy', allow_pickle=True))
         # dump mean predictions
         np.array(ensemble_train).mean(axis=0).dump(ensemblepath + 'y_train_pred.npy')
         np.array(ensemble_test).mean(axis=0).dump(ensemblepath + 'y_test_pred.npy')

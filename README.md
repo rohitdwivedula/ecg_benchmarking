@@ -1,8 +1,8 @@
  [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
  
-# Attention Based Models for ECG Analysis: PTB-XL (2020)
+# Deep Learning Models for ECG Analysis: PTB-XL (2020)
 
-This repository, contains code and results of running various attention models on the PTB-XL dataset.
+This repository, contains code and results of running various deep learning models on the PTB-XL dataset.
 
 ## Setup
 
