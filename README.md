@@ -30,41 +30,7 @@ This will perform all experiments for all the attention based models and save th
 
 ## Results
 
- ### 1. PTB-XL: all statements 
- 
-| Model | AUC &darr; | paper/source | code | 
-|---:|:---|:---|:---| 
-
- ### 2. PTB-XL: diagnostic statements 
- 
-| Model | AUC &darr; | paper/source | code | 
-|---:|:---|:---|:---| 
-
- ### 3. PTB-XL: Diagnostic subclasses 
- 
-| Model | AUC &darr; | paper/source | code | 
-|---:|:---|:---|:---| 
-
- ### 4. PTB-XL: Diagnostic superclasses 
- 
-| Model | AUC &darr; | paper/source | code | 
-|---:|:---|:---|:---| 
-
- ### 5. PTB-XL: Form statements 
- 
-| Model | AUC &darr; | paper/source | code | 
-|---:|:---|:---|:---| 
-
- ### 6. PTB-XL: Rhythm statements 
- 
-| Model | AUC &darr; | paper/source | code | 
-|---:|:---|:---|:---| 
-
-
-### 7. ICBEB: All statements
-
-| Model | AUC &darr; |  F_beta=2 | G_beta=2 | paper/source | code | 
-|---:|:---|:---|:---|:---|:---| 
+Results of each model, tabulated, can be found in the `/results` directory.
 
 # References
 	

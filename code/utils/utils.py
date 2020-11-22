@@ -401,7 +401,7 @@ def generate_ptbxl_summary_table(selection=None, folder='../output/'):
     ]
 
     # helper output function for markdown tables
-    our_work = 'https://arxiv.org/abs/2004.13701'
+    our_work = '#'
     our_repo = 'https://github.com/rohitdwivedula/ecg_benchmarking'
     md_source = ''
     for i, e in enumerate(exps):
